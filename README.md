@@ -1,6 +1,6 @@
 # subscription-channel
 
-This repository contains a subscription channel contract in solidity (>=0.70).
+This repository contains a subscription channel contract in solidity (>=0.7.0)
 
 ## Install
 
@@ -14,6 +14,13 @@ npm i
 ```
 
 ## Dev
+
+### Structure
+
+**Smart Contracts** located in `./eth/contracts/*`.
+`./eth/build` folder will be created during npm install.
+
+### Scripts
 
 build solidity contracts:
 ```bash
