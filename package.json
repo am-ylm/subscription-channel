@@ -21,9 +21,9 @@
     "solc": "^0.7.0"
   },
   "engines" : {
-    "node" : ">=0.12",
+    "node" : ">=0.12"
   },
-  
+
   "repository": {
     "type": "git",
     "url": "git@github.com/amirylm/subscription-channel"

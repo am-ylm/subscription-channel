@@ -13,6 +13,14 @@ install npm dependencies and run build:
 npm i
 ```
 
-## Tests
+## Dev
 
-Run mocha tests with `npm run test`
+build solidity contracts:
+```bash
+npm run build
+```
+
+run mocha tests:
+```bash
+npm test
+```
