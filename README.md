@@ -1,5 +1,7 @@
 # subscription-channel
 
+**WIP**
+
 This repository contains a subscription channel contract in solidity (>=0.7.0)
 
 running tools and tests with Node.js 12.x
