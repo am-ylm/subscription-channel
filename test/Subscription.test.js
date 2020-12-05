@@ -1,4 +1,4 @@
-const assert = require('assert');
+const { assert } = require('chai');
 const ganache = require('ganache-cli');
 const Web3 = require('web3');
 const { readContractBuild } = require("../eth/tools/contracts.js");
@@ -6,7 +6,7 @@ const web3 = new Web3(ganache.provider());
 
 let accounts;
 let factory;
-let subAddress;
+// let subAddress;
 let subscription;
 
 before(async () => {
@@ -38,36 +38,44 @@ before(async () => {
   );
   subscription = await subscription.deploy({ data: Subscription.bin, arguments: [accounts[0], 100000] })
     .send({ from: accounts[0], gas: '1000000', value: web3.utils.toWei('0.5', 'ether') });
-  // console.log("subscription contract was deployed:", factory.options.address);
 });
 
 describe('Subscription', () => {
   it('deploys a factory and a subscription', () => {
-    assert.ok(factory.options.address);
-    assert.ok(subscription.options.address);
+    assert.isOk(factory.options.address);
+    assert.isOk(subscription.options.address);
   });
 
   it('allows to subscribe', async () => {
     const value = web3.utils.toWei('1', 'ether');
     let valFromContract = await subscription.methods.checkAddress(accounts[1]).call({from: accounts[0]});
-    assert(valFromContract == 0);
+    assert.equal(valFromContract, 0);
+    let subscribedEventEmitted = false;
+    subscription.once('Subscribed', {filter: [accounts[1]]},
+        (err, event) => {
+            assert.isOk(event && event.returnValues);
+            assert.isOk(value == event.returnValues.amount);
+            subscribedEventEmitted = true
+        }
+    );
     let res = await subscription.methods.subscribe().send({
       value,
       from: accounts[1]
     });
     valFromContract = await subscription.methods.checkAddress(accounts[1]).call({from: accounts[0]});
-    assert(value == valFromContract);
+    assert.equal(value, valFromContract);
+    assert.isOk(subscribedEventEmitted);
   });
 
   it('requires a minimum fee', async () => {
     try {
-      await await subscription.methods.subscribe().send({
+      await subscription.methods.subscribe().send({
         value: '5',
         from: accounts[2]
       });
-      assert(false);
+      assert.fail("minimum fee was not checked");
     } catch (err) {
-      assert(err);
+        assert.equal(err.results[Object.keys(err.results)[0]].reason, 'minimum fee is required');
     }
   });
 
@@ -94,7 +102,7 @@ describe('Subscription', () => {
 
     const finalBalance = await web3.eth.getBalance(accounts[3]);
     const difference = finalBalance - afterSubBalance;
-    assert(difference > web3.utils.toWei('0.4', 'ether'));
+    assert.isAbove(parseFloat(difference), parseFloat(web3.utils.toWei('0.4', 'ether')));
   });
 
   it('allows tips', async () => {
@@ -106,7 +114,7 @@ describe('Subscription', () => {
         from: accounts[2]
       });
     const valFromContract = await subscription.methods.checkTip(accounts[2]).call({from: accounts[0]});
-    assert(value == valFromContract);
+    assert.equal(value, valFromContract);
   });
 
   it('allow owner to withdraw', async () => {
@@ -127,7 +135,7 @@ describe('Subscription', () => {
 
       const afterBalance = await web3.eth.getBalance(accounts[3]);
       const difference = afterBalance - beforeBalance;
-      assert(difference > web3.utils.toWei('0.45', 'ether'));
+      assert.isAbove(parseFloat(difference), parseFloat(web3.utils.toWei('0.45', 'ether')));
   });
 
 });
